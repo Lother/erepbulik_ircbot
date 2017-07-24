@@ -92,6 +92,8 @@ abstract class plugin {
      * Triggered on a numerical response from the server
      */
     public function triggerNum($num, $data){}
+
+    public function cronjob($m){}
 }
 
 ?>

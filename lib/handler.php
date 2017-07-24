@@ -96,10 +96,15 @@ class handler {
                     $parsed['params']['trailing'] = substr($parsed['params']['trailing'], 1);
                     
                     // Check if it was a command or just a message
-                    $function = ($parsed['params']['trailing'][0] === '!' ? 'command' : 'message');
+                    $function = ($parsed['params']['trailing'][0] === '@' ? 'command' : 'message');
                     
                     // Trigger the 'message()' or 'command()' function
                     $this->triggerPlugin($this->parser->getMessageData($parsed), $function);
+                }
+                elseif($parsed['type'] == 'PING')
+                { 
+                    $this->irc->sendData('PONG ' . $parsed['params']['full']."\n");
+                    $this->triggerPlugin($this->parser->getMessageData($parsed), 'cronjob');
                 }
             }
             
@@ -107,10 +112,10 @@ class handler {
             $args = explode(' ', $data);
             
             // Respond to PING requests to stay connected to the server
-            if($args[0] == 'PING')
+            if($args[0] == 'PING' && !isset($parsed['typed']))
             {
                 // Response with 'PONG'
-                $this->irc->sendData('PONG ' . $args[1]);
+                $this->irc->sendData('PONG ' . $args[1]."\n");
             }
             if($args[0] == 'PING' && !isset($args[3]))
             {

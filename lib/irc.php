@@ -112,6 +112,7 @@ class irc {
     {
         // Format the line for colours.
         $data = $this->colour($data);
+        echo date('Y-m-d H:i:s') . " >> $data";
 
         // Send the data to the server
         return fwrite($this->socket, $data . "\r\n");
@@ -164,10 +165,12 @@ class irc {
     public function getData()
     {
         // Gets the response
-        $data = fgets($this->socket, 256);
+        $data = fgets($this->socket, 1024);
         
         // Echo the data to the command prompt
-        echo $data;
+        if(strlen($data)>0){
+          echo date('Y-m-d H:i:s') . " << $data";
+        }
         
         // Return the data
         return $data;

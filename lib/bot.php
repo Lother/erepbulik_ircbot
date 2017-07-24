@@ -14,6 +14,7 @@ include 'handler.php';
 
 class bot {
     
+    private static $instance = null;
     /**
      * Server to connect to
      * @var string
@@ -48,7 +49,7 @@ class bot {
      * Command prefixes to watch for
      * @var array
      */
-    private $commandPrefix = array('base' => '!');
+    private $commandPrefix = array('base' => '@');
     
     /**
      * Log file stream
@@ -66,13 +67,19 @@ class bot {
      * Create a new IRC class and log stream
      * @return void
      */
+    public static function getInstance(){
+      if(static::$instance == null){
+        static::$instance = new bot();
+      }
+      return static::$instance;
+    }
     public function __construct()
     {
         // New IRC class.
         $this->irc = new irc();
         
         // Open a file to store log data in.
-        $this->logStream = fopen('log.txt', 'a');
+        $this->logStream = fopen('/data/log/irc.txt', 'a');
     }
     
     /**
@@ -132,6 +139,9 @@ class bot {
                 
                 // Send the change nick command to the server.
                 $this->irc->sendData('NICK ' . $this->nickToUse);
+            }
+            if (stripos($data, 'PING') !== false) {
+              $this->irc->sendData('PONG ' . explode(' ' ,$data)[1]);
             }
             
             // Found a nick that is free, join default channels.
@@ -300,6 +310,23 @@ class bot {
     public function getName()
     {
         return $this->nickToUse;
+    }
+
+    public function getChannelList()
+    {
+        $channel = (array) $this->channel;
+        $channelList = [];
+
+        foreach($channel as $chan)
+        {
+            if(!empty($chan))
+            {
+                $chan = explode(' ', $chan);
+                $channelList[] = $chan[0];
+            }
+        }
+
+        return $channelList;
     }
 }
 ?>
